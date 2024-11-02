@@ -4,6 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commentaires des Visiteurs</title>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Votre configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo0eG_6Ecjab35oHz6VmVHxJUnIzSxQzk",
+            authDomain: "coms-944c6.firebaseapp.com",
+            projectId: "coms-944c6",
+            storageBucket: "coms-944c6.firebasestorage.app",
+            messagingSenderId: "877128144896",
+            appId: "1:877128144896:web:f5860edb7b412de327a0e5",
+            measurementId: "G-ZQ2BQ048CM"
+        };
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        let commentToDelete;
+
+        // Charger les commentaires au démarrage
+        window.onload = async function() {
+            const querySnapshot = await getDocs(collection(db, "comments"));
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                addCommentToDOM(data.name, data.comment, data.date, doc.id);
+            });
+        };
+
+        document.getElementById('commentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const comment = document.getElementById('comment').value;
+            const date = new Date().toLocaleString('fr-FR');
+
+            // Ajouter le commentaire à Firestore
+            try {
+                const docRef = await addDoc(collection(db, "comments"), {
+                    name: name,
+                    comment: comment,
+                    date: date
+                });
+                addCommentToDOM(name, comment, date, docRef.id);
+                this.reset();
+            } catch (error) {
+                console.error('Erreur lors de l\'ajout du commentaire: ', error);
+            }
+        });
+
+        function addCommentToDOM(name, comment, date, id) {
+            const commentDiv = document.createElement('div');
+            commentDiv.classList.add('comment');
+            commentDiv.setAttribute('data-id', id); // Ajoute l'ID du document
+            commentDiv.innerHTML = `
+                <strong>${name}</strong> <em>(${date})</em>: 
+                <p>${comment}</p>
+                <button class="delete-button">Supprimer</button>
+            `;
+            document.getElementById('commentsSection').appendChild(commentDiv);
+
+            commentDiv.querySelector('.delete-button').addEventListener('click', function() {
+                commentToDelete = commentDiv;
+                document.getElementById('myModal').style.display = "block";
+            });
+        }
+
+        document.getElementById('confirmDelete').addEventListener('click', async function() {
+            const password = document.getElementById('password').value;
+            if (password === 'seddik') {
+                // Supprimer le commentaire de Firestore
+                const commentId = commentToDelete.getAttribute('data-id');
+                try {
+                    await deleteDoc(doc(db, "comments", commentId));
+                    commentToDelete.remove();
+                    document.getElementById('myModal').style.display = "none";
+                    document.getElementById('password').value = ''; // Réinitialiser le mot de passe
+                } catch (error) {
+                    console.error('Erreur lors de la suppression du commentaire: ', error);
+                }
+            } else {
+                alert('Mot de passe incorrect !');
+            }
+        });
+
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('myModal').style.display = "none";
+            document.getElementById('password').value = ''; // Réinitialiser le mot de passe
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -107,7 +200,6 @@
     </form>
     <div class="comments" id="commentsSection">
         <h2>Commentaires</h2>
-        <!-- Les commentaires seront affichés ici -->
     </div>
 
     <!-- Modale pour demander le mot de passe -->
@@ -126,75 +218,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        let commentToDelete;
-
-        // Charger les commentaires au démarrage
-        fetch('/comments')
-            .then(response => response.json())
-            .then(comments => {
-                comments.forEach(comment => {
-                    addCommentToDOM(comment.name, comment.comment, comment.date);
-                });
-            });
-
-        document.getElementById('commentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const comment = document.getElementById('comment').value;
-            const date = new Date();
-            const formattedDate = date.toLocaleString('fr-FR');
-
-            const newComment = { name, comment, date: formattedDate };
-
-            // Envoi du commentaire au serveur
-            fetch('/comments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newComment),
-            })
-            .then(response => response.json())
-            .then(data => {
-                addCommentToDOM(data.name, data.comment, data.date);
-                this.reset();
-            })
-            .catch(error => console.error('Erreur:', error));
-        });
-
-        function addCommentToDOM(name, comment, date) {
-            const commentDiv = document.createElement('div');
-            commentDiv.classList.add('comment');
-            commentDiv.innerHTML = `
-                <strong>${name}</strong> <em>(${date})</em>: 
-                <p>${comment}</p>
-                <button class="delete-button">Supprimer</button>
-            `;
-            document.getElementById('commentsSection').appendChild(commentDiv);
-
-            commentDiv.querySelector('.delete-button').addEventListener('click', function() {
-                commentToDelete = commentDiv;
-                document.getElementById('myModal').style.display = "block";
-            });
-        }
-
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            const password = document.getElementById('password').value;
-            if (password === 'seddik') {
-                commentToDelete.remove();
-                document.getElementById('myModal').style.display = "none";
-                document.getElementById('password').value = ''; // Réinitialiser le mot de passe
-            } else {
-                alert('Mot de passe incorrect !');
-            }
-        });
-
-        document.getElementById('closeModal').addEventListener('click', function() {
-            document.getElementById('myModal').style.display = "none";
-            document.getElementById('password').value = ''; // Réinitialiser le mot de passe
-        });
-    </script>
 </body>
 </html>
