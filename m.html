@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire Messenger</title>
+</head>
+<body>
+    <h1>Envoyer un message via Messenger</h1>
+    <form id="messengerForm">
+        <label for="name">Nom:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea><br><br>
+
+        <button type="submit">Envoyer via Messenger</button>
+    </form>
+
+    <script>
+        document.getElementById('messengerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+
+            // Encode les données pour l'URL
+            const encodedName = encodeURIComponent(name);
+            const encodedMessage = encodeURIComponent(message);
+
+            // Remplacez 'page_id' par l'ID de votre page Facebook
+            const messengerUrl = `https://m.me/page_id`;
+
+            // Redirige vers Messenger (le message ne sera pas prérempli automatiquement)
+            window.open(messengerUrl, '_blank');
+        });
+    </script>
+</body>
+</html>
