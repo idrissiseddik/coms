@@ -56,7 +56,7 @@
             const encodedSubscribe = encodeURIComponent(`S'abonner à la newsletter: ${subscribe}`);
 
             // Remplacez 'votre_numero' par le numéro de téléphone au format international
-            const whatsappUrl = `https://wa.me/votre_numero?text=Nom:%20${encodedName}%0AEmail:%20${encodedEmail}%0ATéléphone:%20${encodedPhone}%0ASujet:%20${encodedSubject}%0AMessage:%20${encodedMessage}%0A${encodedSubscribe}`;
+            const whatsappUrl = `https://wa.me/+212608975435?text=Nom:%20${encodedName}%0AEmail:%20${encodedEmail}%0ATéléphone:%20${encodedPhone}%0ASujet:%20${encodedSubject}%0AMessage:%20${encodedMessage}%0A${encodedSubscribe}`;
 
             // Ouvrir WhatsApp
             window.open(whatsappUrl);
