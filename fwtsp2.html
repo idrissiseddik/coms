@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire WhatsApp</title>
+</head>
+<body>
+    <h1>Envoyer un message sur WhatsApp</h1>
+    <form id="whatsappForm">
+        <label for="name">Nom:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="phone">Numéro de téléphone:</label>
+        <input type="tel" id="phone" name="phone" required><br><br>
+
+        <label for="subject">Sujet:</label>
+        <select id="subject" name="subject" required>
+            <option value="">Choisissez un sujet</option>
+            <option value="question">Question</option>
+            <option value="suggestion">Suggestion</option>
+            <option value="complaint">Réclamation</option>
+        </select><br><br>
+
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea><br><br>
+
+        <label for="subscribe">
+            <input type="checkbox" id="subscribe" name="subscribe">
+            S'abonner à la newsletter
+        </label><br><br>
+
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <script>
+        document.getElementById('whatsappForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const subscribe = document.getElementById('subscribe').checked ? 'Oui' : 'Non';
+
+            // Encode les données pour l'URL
+            const encodedName = encodeURIComponent(name);
+            const encodedEmail = encodeURIComponent(email);
+            const encodedPhone = encodeURIComponent(phone);
+            const encodedSubject = encodeURIComponent(subject);
+            const encodedMessage = encodeURIComponent(message);
+            const encodedSubscribe = encodeURIComponent(`S'abonner à la newsletter: ${subscribe}`);
+
+            // Remplacez 'votre_numero' par le numéro de téléphone au format international
+            const whatsappUrl = `https://wa.me/votre_numero?text=Nom:%20${encodedName}%0AEmail:%20${encodedEmail}%0ATéléphone:%20${encodedPhone}%0ASujet:%20${encodedSubject}%0AMessage:%20${encodedMessage}%0A${encodedSubscribe}`;
+
+            // Ouvrir WhatsApp
+            window.open(whatsappUrl);
+        });
+    </script>
+</body>
+</html>
